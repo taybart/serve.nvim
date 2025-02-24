@@ -8,7 +8,7 @@ local function on_event(_, data, event)
     end
   end
 end
-vim.fn.jobstart('make all', {
+vim.fn.jobstart('make', {
   on_stderr = on_event,
   on_stdout = on_event,
   on_exit = on_event,
