@@ -1,6 +1,7 @@
 local winnr = vim.fn.win_getid()
 local bufnr = vim.api.nvim_win_get_buf(winnr)
--- local dir = vim.fn.fnamemodify(debug.getinfo(1, 'S').source:sub(2), ':p:h')
+local dir = vim.fn.fnamemodify(debug.getinfo(1, 'S').source:sub(2), ':p:h')
+vim.print(dir)
 local function on_event(_, data, event)
   if event == 'stdout' or event == 'stderr' then
     if data then
