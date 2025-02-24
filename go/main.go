@@ -13,8 +13,12 @@ import (
 )
 
 var s http.Server
+var serving bool
 
 func serve(v *nvim.Nvim, args []string) error {
+	if serving {
+		return nil
+	}
 	log.Debugf("starting serve %v", args)
 
 	if len(args) > 0 {
@@ -26,15 +30,29 @@ func serve(v *nvim.Nvim, args []string) error {
 	})
 	log.Debugf("listening to %s...\n", config.Server.Address)
 	go func() {
+		serving = true
 		if err := s.ListenAndServe(); err != http.ErrServerClosed {
 			v.WriteErr(fmt.Sprintf("%s\n", err))
+			serving = false
 			log.Fatalf("server fatal: %v", err)
 		}
 	}()
 	return nil
 }
 
+func status(v *nvim.Nvim) {
+	if serving {
+		v.WriteOut(fmt.Sprintf("serving at %s/\n", config.Server.Address))
+		return
+	}
+	v.WriteOut("not serving\n")
+}
+
 func stop(v *nvim.Nvim, args []string) error {
+	if !serving {
+		return nil
+	}
+
 	defer func() {
 		if err := log.Close(); err != nil {
 			log.Error(err)
@@ -46,6 +64,7 @@ func stop(v *nvim.Nvim, args []string) error {
 	if err := s.Shutdown(ctx); err != nil {
 		log.Fatal(err)
 	}
+	serving = false
 	return nil
 }
 
@@ -68,6 +87,9 @@ func main() {
 		log.Fatal(err)
 	}
 	if err := v.RegisterHandler("serve", serve); err != nil {
+		log.Fatal(err)
+	}
+	if err := v.RegisterHandler("status", status); err != nil {
 		log.Fatal(err)
 	}
 	if err := v.RegisterHandler("stop", stop); err != nil {

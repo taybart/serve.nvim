@@ -1,6 +1,7 @@
 local M = {
   ch = nil,
   config = {
+    status_icon = '💻',
     server = {
       address = 'localhost:8005',
       directory = '.',
@@ -51,10 +52,16 @@ function M.setup(opts)
 
   vim.api.nvim_create_user_command('Serve', function(args)
     set_config()
+    vim.g.serving_status = M.config.status_icon
     vim.fn.rpcrequest(ensure_job(), 'serve', args.fargs)
   end, { nargs = '*' })
+  vim.api.nvim_create_user_command('ServeStatus', function(args)
+    set_config()
+    vim.fn.rpcrequest(ensure_job(), 'status', args.fargs)
+  end, {})
   vim.api.nvim_create_user_command('ServeStop', function(args)
     set_config()
+    vim.g.serving_status = ''
     vim.fn.rpcrequest(ensure_job(), 'stop', args.fargs)
   end, {})
 end
