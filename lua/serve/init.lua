@@ -8,7 +8,8 @@ local M = {
     },
     logs = {
       level = 'info',
-      file = vim.fn.stdpath('data') .. '/serve.nvim.log',
+      file = vim.fn.stdpath('state') .. '/serve.nvim.log',
+      no_color = false,
     },
   },
 }
@@ -26,6 +27,10 @@ end
 
 local function set_config()
   local c = M.config
+  local no_color = 'false'
+  if c.logs.no_color then
+    no_color = 'true'
+  end
   local json = '{'
       .. '"server":{'
       .. '"address": "'
@@ -41,7 +46,9 @@ local function set_config()
       .. '",'
       .. '"file": "'
       .. c.logs.file
-      .. '"'
+      .. '",'
+      .. '"no_color": '
+      .. no_color
       .. '}}'
   vim.fn.rpcrequest(ensure_job(), 'config', { json })
 end

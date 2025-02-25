@@ -15,8 +15,9 @@ type ServerConfig struct {
 }
 
 type LogsConfig struct {
-	Level string `json:"level,omitempty"`
-	File  string `json:"file,omitempty"`
+	Level   string `json:"level,omitempty"`
+	File    string `json:"file,omitempty"`
+	NoColor bool   `json:"no_color,omitempty"`
 }
 
 var config = struct {
@@ -28,7 +29,8 @@ var config = struct {
 		Directory: ".",
 	},
 	Logs: LogsConfig{
-		Level: "INFO",
+		Level:   "INFO",
+		NoColor: false,
 	},
 }
 
@@ -41,6 +43,9 @@ func configRPC(v *nvim.Nvim, args []string) error {
 	if err := log.SetOutput(config.Logs.File); err != nil {
 		v.WriteErr(fmt.Sprintf("could not open logs file %s\n", err))
 		panic(err)
+	}
+	if config.Logs.NoColor {
+		log.UseColors(false)
 	}
 
 	return nil

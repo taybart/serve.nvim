@@ -19,7 +19,8 @@ You will need go and make installed on your computer
     },
     logs = {
       level = 'info',
-      file = vim.fn.stdpath('data') .. '/serve.nvim.log',
+      file = vim.fn.stdpath('state') .. '/serve.nvim.log',
+      no_color = false,
     },
   },
 }
@@ -38,3 +39,5 @@ You can add it to [lualine](https://github.com/nvim-lualine/lualine) for instanc
 `ServeStatus` gives back the current status
 
 `ServeStop` stop serving directory
+
+### Logs

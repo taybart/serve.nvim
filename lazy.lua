@@ -20,7 +20,8 @@ return {
       },
       logs = {
         level = 'INFO',
-        file = vim.fn.stdpath('data') .. '/serve.nvim.log',
+        file = vim.fn.stdpath('state') .. '/serve.nvim.log',
+        no_color = false,
       },
     },
     cmd = {

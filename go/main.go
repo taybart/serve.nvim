@@ -17,9 +17,11 @@ var serving bool
 
 func serve(v *nvim.Nvim, args []string) error {
 	if serving {
+
+		v.WriteOut(fmt.Sprintf("already serving at %s/\n", config.Server.Address))
 		return nil
 	}
-	log.Debugf("starting serve %v", args)
+	log.Debugf("starting serve %v\n", args)
 
 	if len(args) > 0 {
 		config.Server.Address = args[0]
@@ -32,8 +34,8 @@ func serve(v *nvim.Nvim, args []string) error {
 	go func() {
 		serving = true
 		if err := s.ListenAndServe(); err != http.ErrServerClosed {
-			v.WriteErr(fmt.Sprintf("%s\n", err))
 			serving = false
+			v.WriteErr(fmt.Sprintf("%s\n", err))
 			log.Fatalf("server fatal: %v", err)
 		}
 	}()
@@ -50,6 +52,7 @@ func status(v *nvim.Nvim) {
 
 func stop(v *nvim.Nvim, args []string) error {
 	if !serving {
+		v.WriteOut("server not running\n")
 		return nil
 	}
 
