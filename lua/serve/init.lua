@@ -8,7 +8,7 @@ local M = {
     },
     logs = {
       level = 'info',
-      file = vim.fn.stdpath('state') .. '/serve.nvim.log',
+      file = vim.fn.stdpath('cache') .. '/serve.nvim.log',
       no_color = false,
     },
   },
@@ -32,24 +32,24 @@ local function set_config()
     no_color = 'true'
   end
   local json = '{'
-      .. '"server":{'
-      .. '"address": "'
-      .. c.server.address
-      .. '",'
-      .. '"directory": "'
-      .. c.server.directory
-      .. '"'
-      .. '},'
-      .. '"logs": {'
-      .. '"level": "'
-      .. c.logs.level
-      .. '",'
-      .. '"file": "'
-      .. c.logs.file
-      .. '",'
-      .. '"no_color": '
-      .. no_color
-      .. '}}'
+    .. '"server":{'
+    .. '"address": "'
+    .. c.server.address
+    .. '",'
+    .. '"directory": "'
+    .. c.server.directory
+    .. '"'
+    .. '},'
+    .. '"logs": {'
+    .. '"level": "'
+    .. c.logs.level
+    .. '",'
+    .. '"file": "'
+    .. c.logs.file
+    .. '",'
+    .. '"no_color": '
+    .. no_color
+    .. '}}'
   vim.fn.rpcrequest(ensure_job(), 'config', { json })
 end
 

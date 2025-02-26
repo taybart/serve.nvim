@@ -19,7 +19,7 @@ You will need go and make installed on your computer
     },
     logs = {
       level = 'info',
-      file = vim.fn.stdpath('state') .. '/serve.nvim.log',
+      file = vim.fn.stdpath('cache') .. '/serve.nvim.log',
       no_color = false,
     },
   },
