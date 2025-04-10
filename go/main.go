@@ -12,12 +12,11 @@ import (
 	"github.com/taybart/rest/server"
 )
 
-var s http.Server
+var s *http.Server
 var serving bool
 
 func serve(v *nvim.Nvim, args []string) error {
 	if serving {
-
 		v.WriteOut(fmt.Sprintf("already serving at %s/\n", config.Server.Address))
 		return nil
 	}
@@ -27,8 +26,9 @@ func serve(v *nvim.Nvim, args []string) error {
 		config.Server.Address = args[0]
 	}
 	s = server.New(server.Config{
-		Addr: config.Server.Address,
-		Dir:  config.Server.Directory,
+		Addr:    config.Server.Address,
+		Dir:     config.Server.Directory,
+		Headers: map[string]string{"Access-Control-Allow-Origin": "*"},
 	})
 	log.Debugf("listening to %s...\n", config.Server.Address)
 	go func() {

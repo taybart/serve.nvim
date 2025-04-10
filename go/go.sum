@@ -2,5 +2,5 @@ github.com/neovim/go-client v1.2.1 h1:kl3PgYgbnBfvaIoGYi3ojyXH0ouY6dJY/rYUCssZKq
 github.com/neovim/go-client v1.2.1/go.mod h1:EeqCP3z1vJd70JTaH/KXz9RMZ/nIgEFveX83hYnh/7c=
 github.com/taybart/log v1.6.4 h1:y6JMqDgsZUuvtMzCMqnSkbw9Rkqnr18PCuTYzqCO8nA=
 github.com/taybart/log v1.6.4/go.mod h1:zG3tAVOXRh0zQfyxs0dTqarj1hTKFOUWk/oKeiugmZA=
-github.com/taybart/rest v0.2.2 h1:L4en1UTifhi5tLlCxydXhlQr/E1/uZ4FO9pcr/FYI4k=
-github.com/taybart/rest v0.2.2/go.mod h1:rmFNMv33mD6kP9ZE5Aob1m+RIXSPDuS9a+EnfPMDPEQ=
+github.com/taybart/rest v0.2.3 h1:HomANoQf06kxw7kE3gqAhGZLRMWLuXd3NpmnsKZgJXk=
+github.com/taybart/rest v0.2.3/go.mod h1:q9sg3bqG8ys7duqvphnQ/C+8MvfgOm3kX0QNaavJVcY=
