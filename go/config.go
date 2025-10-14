@@ -12,6 +12,7 @@ import (
 type ServerConfig struct {
 	Address   string `json:"address,omitempty"`
 	Directory string `json:"directory,omitempty"`
+	TLS       string `json:"tls,omitempty"`
 }
 
 type LogsConfig struct {
@@ -27,6 +28,7 @@ var config = struct {
 	Server: ServerConfig{
 		Address:   "localhost:8005",
 		Directory: ".",
+		TLS:       "",
 	},
 	Logs: LogsConfig{
 		Level:   "INFO",

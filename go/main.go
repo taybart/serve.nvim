@@ -12,7 +12,7 @@ import (
 	"github.com/taybart/rest/server"
 )
 
-var s *http.Server
+var s server.Server
 var serving bool
 
 func serve(v *nvim.Nvim, args []string) error {
@@ -25,15 +25,17 @@ func serve(v *nvim.Nvim, args []string) error {
 	if len(args) > 0 {
 		config.Server.Address = args[0]
 	}
+	// TODO: add TLS arg support
 	s = server.New(server.Config{
 		Addr: config.Server.Address,
 		Dir:  config.Server.Directory,
+		// TLS: args[1], //???
 		Cors: true,
 	})
 	log.Debugf("listening to %s...\n", config.Server.Address)
 	go func() {
 		serving = true
-		if err := s.ListenAndServe(); err != http.ErrServerClosed {
+		if err := s.Serve(); err != http.ErrServerClosed {
 			serving = false
 			v.WriteErr(fmt.Sprintf("%s\n", err))
 			log.Fatalf("server fatal: %v", err)
@@ -64,7 +66,7 @@ func stop(v *nvim.Nvim, args []string) error {
 	log.Debug("stopping serve...")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	if err := s.Shutdown(ctx); err != nil {
+	if err := s.Server.Shutdown(ctx); err != nil {
 		log.Fatal(err)
 	}
 	serving = false

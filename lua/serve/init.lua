@@ -5,6 +5,7 @@ local M = {
     server = {
       address = 'localhost:8005',
       directory = '.',
+      -- tls = '',
     },
     logs = {
       level = 'info',
