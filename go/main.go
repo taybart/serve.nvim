@@ -3,74 +3,90 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os"
 	"time"
 
 	"github.com/neovim/go-client/nvim"
 	"github.com/taybart/log"
+	"github.com/taybart/rest"
 	"github.com/taybart/rest/server"
 )
 
 var s server.Server
 var serving bool
 
-func serve(v *nvim.Nvim, args []string) error {
+func serve(v *nvim.Nvim, args []string) (bool, error) {
 	if serving {
 		v.WriteOut(fmt.Sprintf("already serving at %s/\n", config.Server.Address))
-		return nil
+		return false, nil
 	}
-	log.Debugf("starting serve %v\n", args)
 
-	if len(args) > 0 {
-		config.Server.Address = args[0]
+	confFile := config.Server.RestFile
+	if _, err := os.Stat(confFile); !os.IsNotExist(err) {
+		f, err := rest.NewFile(confFile)
+		if err != nil {
+			log.Error(err)
+			return false, err
+		}
+		log.Debug("parsed server file")
+		c, err := f.Parser.Server()
+		if err != nil {
+			log.Error(err)
+			return false, err
+		}
+		config.Server.Address = c.Addr
+		s = server.New(c)
+	} else {
+		if len(args) > 0 {
+			config.Server.Address = args[0]
+			log.Debug("set server address in config")
+		}
+		s = server.New(server.Config{
+			Addr: config.Server.Address,
+			Dir:  ".",
+			Cors: true,
+		})
 	}
-	// TODO: add TLS arg support
-	s = server.New(server.Config{
-		Addr: config.Server.Address,
-		Dir:  config.Server.Directory,
-		// TLS: args[1], //???
-		Cors: true,
-	})
-	log.Debugf("listening to %s...\n", config.Server.Address)
+	log.Debug("created server")
 	go func() {
 		serving = true
-		if err := s.Serve(); err != http.ErrServerClosed {
+		log.Debugf("listening to %s...\n", config.Server.Address)
+		if err := s.Serve(); err != nil {
 			serving = false
-			v.WriteErr(fmt.Sprintf("%s\n", err))
 			log.Fatalf("server fatal: %v", err)
+			v.WriteErr(fmt.Sprintf("%s\n", err))
 		}
 	}()
-	return nil
+	return true, nil
 }
 
-func status(v *nvim.Nvim) {
+func status(v *nvim.Nvim) (string, error) {
+	status := "not serving"
 	if serving {
-		v.WriteOut(fmt.Sprintf("serving at %s/\n", config.Server.Address))
-		return
+		status = fmt.Sprintf("serving at %s/\n", config.Server.Address)
 	}
-	v.WriteOut("not serving\n")
+	return status, nil
+}
+func isServing(v *nvim.Nvim) (bool, error) {
+	return serving, nil
 }
 
-func stop(v *nvim.Nvim, args []string) error {
+func stop(v *nvim.Nvim, args []string) (bool, error) {
 	if !serving {
 		v.WriteOut("server not running\n")
-		return nil
+		return serving, nil
 	}
 
-	defer func() {
-		if err := log.Close(); err != nil {
-			log.Error(err)
-		}
-	}()
 	log.Debug("stopping serve...")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	if err := s.Server.Shutdown(ctx); err != nil {
-		log.Fatal(err)
+		// log.Fatal(err)
+		log.Error(err)
+		return serving, err
 	}
 	serving = false
-	return nil
+	return serving, nil
 }
 
 func setupNvim() *nvim.Nvim {
@@ -94,13 +110,15 @@ func main() {
 	if err := v.RegisterHandler("serve", serve); err != nil {
 		log.Fatal(err)
 	}
+	if err := v.RegisterHandler("serving", isServing); err != nil {
+		log.Fatal(err)
+	}
 	if err := v.RegisterHandler("status", status); err != nil {
 		log.Fatal(err)
 	}
 	if err := v.RegisterHandler("stop", stop); err != nil {
 		log.Fatal(err)
 	}
-
 	if err := v.Serve(); err != nil {
 		log.Fatal(err)
 	}

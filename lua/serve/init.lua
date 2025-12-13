@@ -1,77 +1,62 @@
 local M = {
-  ch = nil,
+  ch = -1,
   config = {
-    status_icon = '💻',
+    status_icon = "💻",
     server = {
-      address = 'localhost:8005',
-      directory = '.',
-      -- tls = '',
+      address = "localhost:8005",
+      rest_file = "serve.rest",
     },
     logs = {
-      level = 'info',
-      file = vim.fn.stdpath('cache') .. '/serve.nvim.log',
+      level = "info",
+      file = vim.fn.stdpath("cache") .. "/serve.nvim.log",
       no_color = false,
     },
   },
 }
 
 local function ensure_job()
-  if M.ch then
+  if M.ch > 0 then
     return M.ch
   end
-  local install_dir = vim.fn.fnamemodify(debug.getinfo(1, 'S').source:sub(2), ':p:h')
-  local bin = install_dir .. '/../../go/serve'
+  local install_dir = vim.fn.fnamemodify(debug.getinfo(1, "S").source:sub(2), ":p:h")
+  local bin = install_dir .. "/../../go/serve"
   M.ch = vim.fn.jobstart({ bin }, { rpc = true })
-
+  if not M.ch then
+    error("could not start serve job")
+  end
   return M.ch
 end
 
-local function set_config()
-  local c = M.config
-  local no_color = 'false'
-  if c.logs.no_color then
-    no_color = 'true'
+local function rpc(fn, opts)
+  local ok, ret = pcall(vim.fn.rpcrequest, ensure_job(), fn, opts)
+  if not ok then
+    vim.notify(ret, vim.log.levels.ERROR)
   end
-  local json = '{'
-    .. '"server":{'
-    .. '"address": "'
-    .. c.server.address
-    .. '",'
-    .. '"directory": "'
-    .. c.server.directory
-    .. '"'
-    .. '},'
-    .. '"logs": {'
-    .. '"level": "'
-    .. c.logs.level
-    .. '",'
-    .. '"file": "'
-    .. c.logs.file
-    .. '",'
-    .. '"no_color": '
-    .. no_color
-    .. '}}'
-  vim.fn.rpcrequest(ensure_job(), 'config', { json })
+  return ret
 end
 
 function M.setup(opts)
-  M.config = vim.tbl_deep_extend('force', M.config, opts)
-  -- set_config()
-
-  vim.api.nvim_create_user_command('Serve', function(args)
-    set_config()
-    vim.g.serving_status = M.config.status_icon
-    vim.fn.rpcrequest(ensure_job(), 'serve', args.fargs)
-  end, { nargs = '*' })
-  vim.api.nvim_create_user_command('ServeStatus', function(args)
-    set_config()
-    vim.fn.rpcrequest(ensure_job(), 'status', args.fargs)
-  end, {})
-  vim.api.nvim_create_user_command('ServeStop', function(args)
-    set_config()
-    vim.g.serving_status = ''
-    vim.fn.rpcrequest(ensure_job(), 'stop', args.fargs)
-  end, {})
+  M.config = vim.tbl_deep_extend("force", M.config, opts)
+  require("serve/command")("Serve", {
+    default = function(args)
+      if not rpc("serving") then
+        rpc("config", { vim.json.encode(M.config) })
+      end
+      rpc("serve", args.fargs)
+      if rpc("serving") then
+        vim.g.serving_status = M.config.status_icon
+      end
+    end,
+    status = function()
+      vim.notify(rpc("status"))
+    end,
+    stop = function()
+      -- stop returns serving status so false means we stopped
+      if not rpc("stop") then
+        vim.g.serving_status = ""
+      end
+    end,
+  })
 end
 
 return M

@@ -36,8 +36,8 @@ You can add it to [lualine](https://github.com/nvim-lualine/lualine) for instanc
 
 `Serve [addr]` will serve the current directory at either `[addr]` or by default `localhost:8005`
 
-`ServeStatus` gives back the current status
+`Serve status` gives back the current status
 
-`ServeStop` stop serving directory
+`Serve stop` stop serving directory
 
 ### Logs
