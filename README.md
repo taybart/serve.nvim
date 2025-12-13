@@ -46,7 +46,7 @@ You can add it to [lualine](https://github.com/nvim-lualine/lualine) for instanc
 
 Serve will read a file named `serve.rest` in the current directory. If it exists, it will be used as the server configuration.
 
-The file format is a [rest](https://github.com/taybart/rest/blob/v0.7.3/doc/SERVER.md) file. Here is an example:
+The file format is a [rest](https://github.com/taybart/rest/blob/v0.7.3/doc/SERVER.md#server-rest-file) file. Here is an example:
 
 ```hcl
 server {
