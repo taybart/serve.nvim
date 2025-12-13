@@ -15,6 +15,7 @@ type ServerConfig struct {
 }
 
 type LogsConfig struct {
+	Enabled bool   `json:"enabled,omitempty"`
 	Level   string `json:"level,omitempty"`
 	File    string `json:"file,omitempty"`
 	NoColor bool   `json:"no_color,omitempty"`
@@ -28,6 +29,7 @@ var config = struct {
 		Address: "localhost:8005",
 	},
 	Logs: LogsConfig{
+		Enabled: true,
 		Level:   "INFO",
 		NoColor: false,
 	},
@@ -39,6 +41,9 @@ func configRPC(v *nvim.Nvim, args []string) error {
 		return err
 	}
 	log.SetLevel(levelFromString(config.Logs.Level))
+	if !config.Logs.Enabled {
+		log.SetLevel(log.NONE)
+	}
 	if err := log.SetOutput(config.Logs.File); err != nil {
 		v.WriteErr(fmt.Sprintf("could not open logs file %s\n", err))
 		panic(err)

@@ -42,9 +42,10 @@ func serve(v *nvim.Nvim, args []string) (bool, error) {
 			log.Debug("set server address in config")
 		}
 		s = server.New(server.Config{
-			Addr: config.Server.Address,
-			Dir:  ".",
-			Cors: true,
+			Addr:  config.Server.Address,
+			Dir:   ".",
+			Cors:  true,
+			Quiet: true,
 		})
 	}
 	log.Debug("created server")

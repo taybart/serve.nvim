@@ -7,6 +7,7 @@ local M = {
       rest_file = "serve.rest",
     },
     logs = {
+      enabled = true,
       level = "info",
       file = vim.fn.stdpath("cache") .. "/serve.nvim.log",
       no_color = false,
