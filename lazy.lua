@@ -12,21 +12,20 @@
 ---@type LazySpec
 return {
   {
-    'taybart/serve.nvim',
+    "taybart/serve.nvim",
     opts = {
       server = {
-        address = 'localhost:8005',
-        directory = '.',
+        address = "localhost:8005",
+        rest_server = "serve.rest",
       },
       logs = {
-        level = 'INFO',
-        file = vim.fn.stdpath('cache') .. '/serve.nvim.log',
+        level = "INFO",
+        file = vim.fn.stdpath("cache") .. "/serve.nvim.log",
         no_color = false,
       },
     },
     cmd = {
-      'Serve',
-      'ServeStop',
+      "Serve",
     },
   },
 }

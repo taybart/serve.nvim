@@ -1,0 +1,6 @@
+server {
+  address = "localhost:18081"
+  directory = "./assets/"
+  cors = true
+  quiet = true
+}
