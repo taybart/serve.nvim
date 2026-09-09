@@ -2,7 +2,10 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"net"
+	"net/http"
 	"os"
 	"time"
 
@@ -49,13 +52,39 @@ func serve(v *nvim.Nvim, args []string) (bool, error) {
 		})
 	}
 	log.Debug("created server")
-	go func() {
+
+	// note on the goroutines below: errors are logged, never log.Fatal'd.
+	// log.Fatal calls os.Exit, which would take down this rpc process and
+	// leave the plugin talking to a dead channel for the rest of the session.
+
+	if s.Config.TLS != "" {
+		// tls setup lives in rest's Serve, so bind errors stay asynchronous here
 		serving = true
+		go func() {
+			log.Debugf("listening to %s...\n", config.Server.Address)
+			if err := s.Serve(); err != nil {
+				serving = false
+				log.Errorf("server fatal: %v", err)
+				v.WriteErr(fmt.Sprintf("serve: %s\n", err))
+			}
+		}()
+		return true, nil
+	}
+
+	// bind up front so "address already in use" is returned to :Serve rather
+	// than surfacing after we have already reported success
+	ln, err := net.Listen("tcp", config.Server.Address)
+	if err != nil {
+		log.Error(err)
+		return false, err
+	}
+	serving = true
+	go func() {
 		log.Debugf("listening to %s...\n", config.Server.Address)
-		if err := s.Serve(); err != nil {
+		if err := s.Server.Serve(ln); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			serving = false
-			log.Fatalf("server fatal: %v", err)
-			v.WriteErr(fmt.Sprintf("%s\n", err))
+			log.Errorf("server fatal: %v", err)
+			v.WriteErr(fmt.Sprintf("serve: %s\n", err))
 		}
 	}()
 	return true, nil

@@ -4,14 +4,20 @@ Quick local server for current directory
 
 ## Install
 
-You will need `go` and `make` installed on your computer
+You will need `go` and `make` installed on your computer.
+
+The go server binary is compiled on install and update by `build.lua`, which
+lazy.nvim runs on its own — no `build` key is required in your spec. If the
+binary ever goes missing, `:Lazy build serve.nvim` (or `make all` in the plugin
+directory) rebuilds it.
 
 ## Configuration
+
+All options are optional; the defaults below are what you get with `opts = {}`.
 
 ```lua
 {
     'taybart/serve.nvim',
-    build = 'make all', -- important step
     opts = {
         status_icon = '💻',
         server = {

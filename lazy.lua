@@ -7,23 +7,16 @@
 --https://lazy.folke.io/packages#lazy
 
 ---@module "lazy"
----@module "yazi"
 
 ---@type LazySpec
 return {
   {
     "taybart/serve.nvim",
-    opts = {
-      server = {
-        address = "localhost:8005",
-        rest_server = "serve.rest",
-      },
-      logs = {
-        level = "INFO",
-        file = vim.fn.stdpath("cache") .. "/serve.nvim.log",
-        no_color = false,
-      },
-    },
+    -- on a first-time install lazy.nvim has not read this file yet, so the
+    -- build is driven by build.lua in the plugin root instead. this key covers
+    -- later updates, where the spec is known; both run the same `make all`.
+    build = "make all",
+    opts = {},
     cmd = {
       "Serve",
     },

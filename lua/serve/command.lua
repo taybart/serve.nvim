@@ -6,7 +6,6 @@ return function(command_name, cmds)
         table.insert(commands, name)
       end
     end
-    vim.print(commands)
 
     local pattern = arg_lead:gsub("(.)", function(c)
       return string.format("%s[^%s]*", c:lower(), c:lower())
